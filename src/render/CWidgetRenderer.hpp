@@ -8,20 +8,20 @@
 
 namespace Hyprlooks {
 
-class CWidgetRenderer {
-  public:
-    CWidgetRenderer()  = default;
-    ~CWidgetRenderer() = default;
+    class CWidgetRenderer {
+      public:
+        CWidgetRenderer()  = default;
+        ~CWidgetRenderer() = default;
 
-    void init(CHyprlandEventBus* eventBus, CHyprlandRenderer* renderer, CSafetyManager* safety);
-    void shutdown();
+        void init(CHyprlandEventBus* eventBus, CHyprlandRenderer* renderer, CSafetyManager* safety);
+        void shutdown();
 
-  private:
-    void onRenderStage(eRenderStage stage);
+      private:
+        void               onRenderStage(eRenderStage stage);
 
-    CHyprlandEventBus*  m_eventBus  = nullptr;
-    CHyprlandRenderer*  m_renderer  = nullptr;
-    CSafetyManager*     m_safety    = nullptr;
-};
+        CHyprlandEventBus* m_eventBus = nullptr;
+        CHyprlandRenderer* m_renderer = nullptr;
+        CSafetyManager*    m_safety   = nullptr;
+    };
 
 }

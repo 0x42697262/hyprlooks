@@ -8,20 +8,20 @@
 
 namespace Hyprlooks {
 
-class CClickCommand : public IInputCommand {
-  public:
-    using Callback = std::function<void(const Hyprutils::Math::Vector2D&)>;
+    class CClickCommand : public IInputCommand {
+      public:
+        using Callback = std::function<void()>;
 
-    CClickCommand(WP<IWidget> widget, uint32_t button, Hyprutils::Math::Vector2D pos, Callback callback);
+        CClickCommand(WP<IWidget> widget, uint32_t button, Hyprutils::Math::Vector2D pos, Callback callback);
 
-    virtual void        execute() override;
-    virtual const char* name() const override;
+        virtual void        execute() override;
+        virtual const char* name() const override;
 
-  private:
-    WP<IWidget>                    m_widget;
-    uint32_t                       m_button;
-    Hyprutils::Math::Vector2D      m_pos;
-    Callback                       m_callback;
-};
+      private:
+        WP<IWidget>               m_widget;
+        uint32_t                  m_button;
+        Hyprutils::Math::Vector2D m_pos;
+        Callback                  m_callback;
+    };
 
 }

@@ -6,71 +6,74 @@
 
 namespace Hyprlooks {
 
-void CWidgetRenderer::init(CHyprlandEventBus* eventBus, CHyprlandRenderer* renderer, CSafetyManager* safety) {
-    m_eventBus = eventBus;
-    m_renderer = renderer;
-    m_safety   = safety;
+    void CWidgetRenderer::init(CHyprlandEventBus* eventBus, CHyprlandRenderer* renderer, CSafetyManager* safety) {
+        m_eventBus = eventBus;
+        m_renderer = renderer;
+        m_safety   = safety;
 
-    m_eventBus->subscribeRenderStage([this](eRenderStage stage) { onRenderStage(stage); });
-}
+        m_eventBus->subscribeRenderStage([this](eRenderStage stage) { onRenderStage(stage); });
+        m_eventBus->subscribeMonitorRemoved([](PHLMONITOR monitor) { removeWidgetTreeForMonitor(monitor); });
+    }
 
-void CWidgetRenderer::shutdown() {
-    m_eventBus  = nullptr;
-    m_renderer  = nullptr;
-    m_safety    = nullptr;
-}
+    void CWidgetRenderer::shutdown() {
+        m_eventBus = nullptr;
+        m_renderer = nullptr;
+        m_safety   = nullptr;
+    }
 
-void CWidgetRenderer::onRenderStage(eRenderStage stage) {
-    if (!m_safety || !m_safety->canRender() || !m_renderer)
-        return;
-
-    if (stage != RENDER_POST_WINDOWS)
-        return;
-
-    PHLMONITOR pMonitor = g_pCompositor ? g_pCompositor->getMonitorFromCursor() : nullptr;
-    if (!pMonitor)
-        return;
-
-    auto result = CCrashIsolation::guard("render.onRenderStage", [&]() {
-        auto& tree = widgetTreeForMonitor(pMonitor);
-        if (!tree->root() || !tree->root()->isVisible())
+    void CWidgetRenderer::onRenderStage(eRenderStage stage) {
+        if (!m_safety || !m_safety->canRender() || !m_renderer)
             return;
 
-        tree->relayout();
-
-        const float scale = m_renderer->monitorScale(pMonitor);
-
-        CRenderCommandQueue queue;
-        tree->collectRenderCommands(queue, scale);
-
-        if (queue.empty())
+        if (stage != RENDER_POST_WINDOWS)
             return;
 
-        queue.sortByPriority();
-        if (!m_safety->canBlur())
-            queue.filterExpensive(false);
+        auto pMonitor = g_pHyprRenderer ? g_pHyprRenderer->m_renderData.pMonitor.lock() : nullptr;
+        if (!pMonitor)
+            return;
 
-        auto bbox = queue.totalBoundingBox(scale);
-        if (bbox) {
-            auto globalBox = *bbox;
-            globalBox.x += pMonitor->m_position.x;
-            globalBox.y += pMonitor->m_position.y;
-            m_renderer->damageBox(globalBox);
+        auto result = CCrashIsolation::guard("render.onRenderStage", [&]() {
+            auto& tree = widgetTreeForMonitor(pMonitor);
+            if (!tree->root() || !tree->root()->isVisible())
+                return;
 
-            auto lastDamage = tree->lastDamageBox();
-            if (lastDamage.w > 0 && lastDamage.h > 0)
-                m_renderer->damageBox(lastDamage);
+            const bool treeChanged = tree->root()->isDirty();
+            tree->relayout();
 
-            tree->setLastDamageBox(globalBox);
-        }
+            const float         scale = m_renderer->monitorScale(pMonitor);
 
-        m_renderer->addPassElement(makeUnique<CWidgetPassElement>(std::move(queue)));
-    });
+            CRenderCommandQueue queue;
+            tree->collectRenderCommands(queue, scale);
 
-    if (result.success)
-        m_safety->onRenderSuccess();
-    else
-        m_safety->onRenderFailure("render.onRenderStage");
-}
+            if (queue.empty())
+                return;
+
+            queue.sortByPriority();
+            if (!m_safety->canBlur())
+                queue.filterExpensive(false);
+
+            const bool needsDamage = treeChanged || tree->root()->isDirty();
+            auto       bbox        = queue.totalBoundingBox(1.F);
+            if (needsDamage && bbox) {
+                auto globalBox = *bbox;
+                globalBox.x += pMonitor->m_position.x;
+                globalBox.y += pMonitor->m_position.y;
+                m_renderer->damageBox(globalBox);
+
+                auto lastDamage = tree->lastDamageBox();
+                if (lastDamage.w > 0 && lastDamage.h > 0)
+                    m_renderer->damageBox(lastDamage);
+
+                tree->setLastDamageBox(globalBox);
+            }
+
+            m_renderer->addPassElement(makeUnique<CWidgetPassElement>(std::move(queue), scale));
+        });
+
+        if (result.success)
+            m_safety->onRenderSuccess();
+        else
+            m_safety->onRenderFailure("render.onRenderStage");
+    }
 
 }

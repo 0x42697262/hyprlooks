@@ -6,18 +6,18 @@
 
 namespace Hyprlooks {
 
-class CFocusManager {
-  public:
-    CFocusManager()  = default;
-    ~CFocusManager() = default;
+    class CFocusManager {
+      public:
+        CFocusManager()  = default;
+        ~CFocusManager() = default;
 
-    void        setFocused(WP<IWidget> widget);
-    WP<IWidget> focused() const;
-    void        clearFocus();
-    bool        hasFocus() const;
+        void        setFocused(WP<IWidget> widget);
+        WP<IWidget> focused() const;
+        void        clearFocus();
+        bool        hasFocus() const;
 
-  private:
-    WP<IWidget> m_focused;
-};
+      private:
+        WP<IWidget> m_focused;
+    };
 
 }

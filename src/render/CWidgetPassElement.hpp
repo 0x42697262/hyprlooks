@@ -7,22 +7,24 @@
 
 namespace Hyprlooks {
 
-class CWidgetPassElement : public IPassElement {
-  public:
-    explicit CWidgetPassElement(CRenderCommandQueue&& queue);
-    virtual ~CWidgetPassElement() = default;
+    class CWidgetPassElement : public IPassElement {
+      public:
+        CWidgetPassElement(CRenderCommandQueue&& queue, float scale);
+        virtual ~CWidgetPassElement() = default;
 
-    virtual std::vector<UP<IPassElement>> draw() override;
-    virtual bool                          needsLiveBlur() override;
-    virtual bool                          needsPrecomputeBlur() override;
-    virtual std::optional<CBox>           boundingBox() override;
-    virtual CRegion                       opaqueRegion() override;
-    virtual const char*                   passName() override;
-    virtual ePassElementType              type() override;
+        virtual std::vector<UP<IPassElement>> draw() override;
+        virtual bool                          needsLiveBlur() override;
+        virtual bool                          needsPrecomputeBlur() override;
+        virtual std::optional<CBox>           boundingBox() override;
+        virtual CRegion                       opaqueRegion() override;
+        virtual const char*                   passName() override;
+        virtual ePassElementType              type() override;
 
-  private:
-    CRenderCommandQueue m_queue;
-    bool                m_needsBlur = false;
-};
+      private:
+        CRenderCommandQueue m_queue;
+        float               m_scale     = 1.F;
+        bool                m_needsBlur = false;
+        std::optional<CBox> m_boundingBox;
+    };
 
 }

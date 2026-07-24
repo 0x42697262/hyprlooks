@@ -1,6 +1,8 @@
 #include "CHyprlandConfig.hpp"
 #include "../globals.hpp"
 
+#include <src/config/shared/actions/ConfigActions.hpp>
+
 void CHyprlandConfig::notify(const std::string& text, uint64_t timeMs, const CHyprColor& color, eIcons icon) {
     HyprlandAPI::addNotificationV2(PHANDLE, {{"text", "[hyprlooks] " + text}, {"time", timeMs}, {"color", color}, {"icon", icon}});
 }
@@ -11,6 +13,10 @@ bool CHyprlandConfig::registerDispatcher(const std::string& name, std::function<
 
 bool CHyprlandConfig::unregisterDispatcher(const std::string& name) {
     return HyprlandAPI::removeDispatcher(PHANDLE, name);
+}
+
+bool CHyprlandConfig::focusWorkspace(WORKSPACEID id) {
+    return Config::Actions::changeWorkspace(std::to_string(id)).has_value();
 }
 
 bool CHyprlandConfig::addLuaFunction(const std::string& ns, const std::string& name, PLUGIN_LUA_FN fn) {

@@ -1,38 +1,39 @@
 #include "CWidgetPassElement.hpp"
-#include "commands/CDrawRectCommand.hpp"
 
 namespace Hyprlooks {
 
-CWidgetPassElement::CWidgetPassElement(CRenderCommandQueue&& queue) : m_queue(std::move(queue)) {
-    ;
-}
+    CWidgetPassElement::CWidgetPassElement(CRenderCommandQueue&& queue, float scale) : m_queue(std::move(queue)), m_scale(scale) {
+        m_needsBlur   = m_queue.hasExpensive();
+        m_boundingBox = m_queue.totalBoundingBox(m_scale);
+        ;
+    }
 
-std::vector<UP<IPassElement>> CWidgetPassElement::draw() {
-    return m_queue.produceAll(1.F);
-}
+    std::vector<UP<IPassElement>> CWidgetPassElement::draw() {
+        return m_queue.produceAll(m_scale);
+    }
 
-bool CWidgetPassElement::needsLiveBlur() {
-    return m_needsBlur;
-}
+    bool CWidgetPassElement::needsLiveBlur() {
+        return m_needsBlur;
+    }
 
-bool CWidgetPassElement::needsPrecomputeBlur() {
-    return false;
-}
+    bool CWidgetPassElement::needsPrecomputeBlur() {
+        return false;
+    }
 
-std::optional<CBox> CWidgetPassElement::boundingBox() {
-    return std::nullopt;
-}
+    std::optional<CBox> CWidgetPassElement::boundingBox() {
+        return m_boundingBox;
+    }
 
-CRegion CWidgetPassElement::opaqueRegion() {
-    return {};
-}
+    CRegion CWidgetPassElement::opaqueRegion() {
+        return {};
+    }
 
-const char* CWidgetPassElement::passName() {
-    return "CWidgetPassElement";
-}
+    const char* CWidgetPassElement::passName() {
+        return "CWidgetPassElement";
+    }
 
-ePassElementType CWidgetPassElement::type() {
-    return EK_CUSTOM;
-}
+    ePassElementType CWidgetPassElement::type() {
+        return EK_CUSTOM;
+    }
 
 }

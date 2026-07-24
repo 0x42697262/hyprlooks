@@ -8,23 +8,23 @@
 
 namespace Hyprlooks {
 
-class CTheme {
-  public:
-    CTheme()  = default;
-    ~CTheme() = default;
+    class CTheme {
+      public:
+        CTheme()  = default;
+        ~CTheme() = default;
 
-    void          loadDefaults();
+        void         loadDefaults();
 
-    SWidgetStyle  resolve(eWidgetType type, const SWidgetStyle& overrides) const;
-    SWidgetStyle  baseStyle(eWidgetType type) const;
+        SWidgetStyle resolve(eWidgetType type, const SWidgetStyle& overrides) const;
+        SWidgetStyle baseStyle(eWidgetType type) const;
 
-    void          setAccentColor(const CHyprColor& c);
-    CHyprColor    accentColor() const;
+        void         setAccentColor(const CHyprColor& c);
+        CHyprColor   accentColor() const;
 
-  private:
-    CHyprColor m_accent = CHyprColor{0.2F, 0.5F, 0.9F, 1.F};
-};
+      private:
+        CHyprColor m_accent = CHyprColor{0.2F, 0.5F, 0.9F, 1.F};
+    };
 
-UP<CTheme>& theme();
+    UP<CTheme>& theme();
 
 }

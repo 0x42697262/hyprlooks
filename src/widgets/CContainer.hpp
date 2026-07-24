@@ -8,26 +8,28 @@
 
 namespace Hyprlooks {
 
-class CContainer : public IWidget {
-  public:
-    CContainer();
-    ~CContainer() override = default;
+    class CContainer : public IWidget {
+      public:
+        CContainer();
+        ~CContainer() override = default;
 
-    void                   addChild(UP<IWidget> child);
-    void                   clearChildren();
-    size_t                 childCount() const;
+        void                              addChild(UP<IWidget> child);
+        void                              clearChildren();
+        size_t                            childCount() const;
+        const std::vector<UP<IWidget>>&   children() const;
 
-    void                   setLayoutStrategy(UP<ILayoutStrategy> strategy);
-    ILayoutStrategy*       layoutStrategy() const;
+        void                              setLayoutStrategy(UP<ILayoutStrategy> strategy);
+        ILayoutStrategy*                  layoutStrategy() const;
 
-    virtual eWidgetType    type() const override;
-    virtual const char*    typeName() const override;
-    virtual void           layout(const Hyprutils::Math::CBox& available) override;
-    virtual RenderCommandList buildRenderCommands(float monitorScale) override;
+        virtual eWidgetType               type() const override;
+        virtual const char*               typeName() const override;
+        virtual Hyprutils::Math::Vector2D measure() const override;
+        virtual void                      layout(const Hyprutils::Math::CBox& available) override;
+        virtual RenderCommandList         buildRenderCommands(float monitorScale) override;
 
-  private:
-    std::vector<UP<IWidget>>    m_children;
-    UP<ILayoutStrategy>         m_layoutStrategy;
-};
+      protected:
+        std::vector<UP<IWidget>> m_children;
+        UP<ILayoutStrategy>      m_layoutStrategy;
+    };
 
 }

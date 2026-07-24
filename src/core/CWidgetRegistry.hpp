@@ -12,19 +12,19 @@
 
 namespace Hyprlooks {
 
-class CWidgetRegistry {
-  public:
-    using WidgetConstructor = std::function<UP<IWidget>()>;
+    class CWidgetRegistry {
+      public:
+        using WidgetConstructor = std::function<UP<IWidget>()>;
 
-    void                          registerType(const std::string& type, WidgetConstructor ctor);
-    UP<IWidget>                   create(const std::string& type);
-    bool                          knows(const std::string& type) const;
-    std::vector<std::string>      registeredTypes() const;
+        void                     registerType(const std::string& type, WidgetConstructor ctor);
+        UP<IWidget>              create(const std::string& type);
+        bool                     knows(const std::string& type) const;
+        std::vector<std::string> registeredTypes() const;
 
-  private:
-    std::unordered_map<std::string, WidgetConstructor> m_constructors;
-};
+      private:
+        std::unordered_map<std::string, WidgetConstructor> m_constructors;
+    };
 
-UP<CWidgetRegistry>& widgetRegistry();
+    UP<CWidgetRegistry>& widgetRegistry();
 
 }

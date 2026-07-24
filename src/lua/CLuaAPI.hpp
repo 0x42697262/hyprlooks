@@ -8,20 +8,21 @@
 
 namespace Hyprlooks {
 
-class CLuaAPI {
-  public:
-    CLuaAPI()  = default;
-    ~CLuaAPI() = default;
+    class CLuaAPI {
+      public:
+        CLuaAPI()  = default;
+        ~CLuaAPI() = default;
 
-    bool init();
-    void shutdown();
+        bool init();
+        void onPreReload();
+        void shutdown();
 
-  private:
-    static int luaBar(lua_State* L);
-    static int luaWidget(lua_State* L);
-    static int luaStatus(lua_State* L);
-};
+      private:
+        static int luaBar(lua_State* L);
+        static int luaWidget(lua_State* L);
+        static int luaStatus(lua_State* L);
+    };
 
-UP<CLuaAPI>& luaAPI();
+    UP<CLuaAPI>& luaAPI();
 
 }

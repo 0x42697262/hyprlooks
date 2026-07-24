@@ -5,54 +5,62 @@
 
 namespace Hyprlooks {
 
-CImage::CImage() {
-    m_style = CThemeDefaults::imageStyle();
-}
+    CImage::CImage() {
+        m_style = CThemeDefaults::imageStyle();
+    }
 
-void CImage::loadFromFile(const std::string& path) {
-    m_path  = path;
-    m_loaded = false;
-    markDirty();
-}
+    void CImage::loadFromFile(const std::string& path) {
+        m_path   = path;
+        m_loaded = false;
+        markDirty();
+    }
 
-void CImage::setTexture(SP<Render::ITexture> tex) {
-    m_texture = tex;
-    m_loaded  = true;
-    markDirty();
-}
-
-eWidgetType CImage::type() const {
-    return eWidgetType::IMAGE;
-}
-
-const char* CImage::typeName() const {
-    return "CImage";
-}
-
-void CImage::layout(const Hyprutils::Math::CBox& available) {
-    m_geometry.box     = available;
-    m_geometry.visible = m_visible;
-    m_geometry.dirty   = false;
-}
-
-IWidget::RenderCommandList CImage::buildRenderCommands(float monitorScale) {
-    if (!m_loaded && !m_path.empty()) {
-        static CHyprlandRenderer renderer;
-        m_texture = renderer.loadAsset(m_path);
+    void CImage::setTexture(SP<Render::ITexture> tex) {
+        m_texture = tex;
         m_loaded  = true;
+        markDirty();
     }
 
-    RenderCommandList commands;
-
-    if (m_texture && m_texture->ok()) {
-        commands.push_back(makeUnique<CDrawTextureCommand>(CDrawTextureCommand::SParams{
-            .tex   = m_texture,
-            .box   = m_geometry.box,
-            .alpha = m_style.opacity,
-        }));
+    eWidgetType CImage::type() const {
+        return eWidgetType::IMAGE;
     }
 
-    return commands;
-}
+    const char* CImage::typeName() const {
+        return "CImage";
+    }
+
+    Hyprutils::Math::Vector2D CImage::measure() const {
+        if (m_texture && m_texture->ok())
+            return m_texture->m_size;
+        return {0.F, 0.F};
+    }
+
+    void CImage::layout(const Hyprutils::Math::CBox& available) {
+        m_geometry.box     = available;
+        m_geometry.visible = m_visible;
+        m_geometry.dirty   = false;
+        m_dirty            = false;
+        m_styleDirty       = false;
+    }
+
+    IWidget::RenderCommandList CImage::buildRenderCommands(float monitorScale) {
+        if (!m_loaded && !m_path.empty()) {
+            static CHyprlandRenderer renderer;
+            m_texture = renderer.loadAsset(m_path);
+            m_loaded  = true;
+        }
+
+        RenderCommandList commands;
+
+        if (m_texture && m_texture->ok()) {
+            commands.push_back(makeUnique<CDrawTextureCommand>(CDrawTextureCommand::SParams{
+                .tex   = m_texture,
+                .box   = m_geometry.box,
+                .alpha = m_style.opacity,
+            }));
+        }
+
+        return commands;
+    }
 
 }

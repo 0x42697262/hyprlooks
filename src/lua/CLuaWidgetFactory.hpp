@@ -8,17 +8,17 @@
 
 namespace Hyprlooks {
 
-class CLuaWidgetFactory {
-  public:
-    CLuaWidgetFactory()  = default;
-    ~CLuaWidgetFactory() = default;
+    class CLuaWidgetFactory {
+      public:
+        CLuaWidgetFactory()  = default;
+        ~CLuaWidgetFactory() = default;
 
-    void registerBuiltinWidgets();
+        void registerBuiltinWidgets();
 
-  private:
-    void registerWidgetTypes();
-};
+      private:
+        void registerWidgetTypes();
+    };
 
-UP<CLuaWidgetFactory>& luaWidgetFactory();
+    UP<CLuaWidgetFactory>& luaWidgetFactory();
 
 }

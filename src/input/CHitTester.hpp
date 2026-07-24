@@ -10,15 +10,15 @@
 
 namespace Hyprlooks {
 
-class CHitTester {
-  public:
-    CHitTester()  = default;
-    ~CHitTester() = default;
+    class CHitTester {
+      public:
+        CHitTester()  = default;
+        ~CHitTester() = default;
 
-    IWidget* hitTest(CWidgetTree* tree, const Hyprutils::Math::Vector2D& globalPos);
+        IWidget* hitTest(CWidgetTree* tree, const Hyprutils::Math::Vector2D& globalPos);
 
-  private:
-    IWidget* hitTestRecursive(IWidget* w, const Hyprutils::Math::Vector2D& localPos);
-};
+      private:
+        IWidget* hitTestRecursive(IWidget* w, const Hyprutils::Math::Vector2D& localPos);
+    };
 
 }

@@ -1,6 +1,7 @@
 #include "CHyprlandRenderer.hpp"
 
 #include <src/helpers/Monitor.hpp>
+#include <src/Compositor.hpp>
 
 void CHyprlandRenderer::damageBox(const Hyprutils::Math::CBox& box) {
     if (!g_pHyprRenderer)
@@ -12,6 +13,13 @@ void CHyprlandRenderer::scheduleFrame(PHLMONITOR pMonitor) {
     if (!pMonitor)
         return;
     pMonitor->addDamage(CBox{0, 0, pMonitor->m_size.x, pMonitor->m_size.y});
+}
+
+void CHyprlandRenderer::scheduleAllFrames() {
+    if (!g_pHyprRenderer || !g_pCompositor)
+        return;
+    for (const auto& monitor : g_pCompositor->m_monitors)
+        g_pHyprRenderer->damageMonitor(monitor);
 }
 
 void CHyprlandRenderer::addPassElement(UP<IPassElement>&& element) {

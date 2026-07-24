@@ -28,6 +28,14 @@ void CHyprlandEventBus::subscribeMonitorFocused(MonitorFocusedCallback cb) {
     m_monitorFocusedListener = Event::bus()->m_events.monitor.focused.listen([cb](PHLMONITOR mon) { cb(mon); });
 }
 
+void CHyprlandEventBus::subscribeMonitorRemoved(MonitorRemovedCallback cb) {
+    m_monitorRemovedListener = Event::bus()->m_events.monitor.removed.listen([cb](PHLMONITOR mon) { cb(mon); });
+}
+
+void CHyprlandEventBus::subscribeConfigPreReload(ConfigPreReloadCallback cb) {
+    m_configPreReloadListener = Event::bus()->m_events.config.preReload.listen([cb]() { cb(); });
+}
+
 void CHyprlandEventBus::subscribeConfigReloaded(ConfigReloadedCallback cb) {
     m_configReloadedListener = Event::bus()->m_events.config.reloaded.listen([cb]() { cb(); });
 }
@@ -40,5 +48,7 @@ void CHyprlandEventBus::disconnectAll() {
     m_keyboardKeyListener.reset();
     m_workspaceActiveListener.reset();
     m_monitorFocusedListener.reset();
+    m_monitorRemovedListener.reset();
+    m_configPreReloadListener.reset();
     m_configReloadedListener.reset();
 }

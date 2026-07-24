@@ -12,12 +12,12 @@
 
 namespace Hyprlooks {
 
-class IInputCommand {
-  public:
-    virtual ~IInputCommand() = default;
+    class IInputCommand {
+      public:
+        virtual ~IInputCommand() = default;
 
-    virtual void        execute() = 0;
-    virtual const char* name() const = 0;
-};
+        virtual void        execute()    = 0;
+        virtual const char* name() const = 0;
+    };
 
 }

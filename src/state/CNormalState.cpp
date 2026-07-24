@@ -2,20 +2,20 @@
 
 namespace Hyprlooks {
 
-void CNormalState::onEnter(IWidget& w) {
-    w.markDirty();
-}
+    void CNormalState::onEnter(IWidget& w) {
+        w.markDirty();
+    }
 
-void CNormalState::onExit(IWidget& w) {
-    ;
-}
+    void CNormalState::onExit(IWidget& w) {
+        ;
+    }
 
-SWidgetStyle CNormalState::styleFor(const SWidgetStyle& base) {
-    return base;
-}
+    SWidgetStyle CNormalState::styleFor(const SWidgetStyle& base) {
+        return base;
+    }
 
-const char* CNormalState::name() {
-    return "Normal";
-}
+    const char* CNormalState::name() {
+        return "Normal";
+    }
 
 }

@@ -7,20 +7,20 @@
 
 namespace Hyprlooks {
 
-class CInputCommandQueue {
-  public:
-    CInputCommandQueue()  = default;
-    ~CInputCommandQueue() = default;
+    class CInputCommandQueue {
+      public:
+        CInputCommandQueue()  = default;
+        ~CInputCommandQueue() = default;
 
-    void   enqueue(UP<IInputCommand> cmd);
-    void   flush();
-    void   clear();
+        void   enqueue(UP<IInputCommand> cmd);
+        void   flush();
+        void   clear();
 
-    size_t size() const;
-    bool   empty() const;
+        size_t size() const;
+        bool   empty() const;
 
-  private:
-    std::vector<UP<IInputCommand>> m_commands;
-};
+      private:
+        std::vector<UP<IInputCommand>> m_commands;
+    };
 
 }

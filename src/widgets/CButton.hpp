@@ -10,31 +10,30 @@
 
 namespace Hyprlooks {
 
-class CButton : public IWidget {
-  public:
-    using ClickCallback = std::function<void()>;
+    class CButton : public IWidget {
+      public:
+        using ClickCallback = std::function<void()>;
 
-    CButton();
-    ~CButton() override = default;
+        CButton();
+        ~CButton() override = default;
 
-    void                   setText(const std::string& text);
-    void                   setIcon(const std::string& icon);
-    void                   onClick(ClickCallback cb);
+        void                              setText(const std::string& text);
+        void                              setIcon(const std::string& icon);
+        void                              onClick(ClickCallback cb);
 
-    virtual eWidgetType    type() const override;
-    virtual const char*    typeName() const override;
-    virtual bool           interactive() const override;
-    virtual void           layout(const Hyprutils::Math::CBox& available) override;
-    virtual RenderCommandList buildRenderCommands(float monitorScale) override;
+        virtual eWidgetType               type() const override;
+        virtual const char*               typeName() const override;
+        virtual Hyprutils::Math::Vector2D measure() const override;
+        virtual void                      setStyle(const SWidgetStyle& s) override;
+        virtual bool                      interactive() const override;
+        virtual void                      layout(const Hyprutils::Math::CBox& available) override;
+        virtual RenderCommandList         buildRenderCommands(float monitorScale) override;
 
-    void                   fireClick();
+        void                              fireClick();
 
-  private:
-    void                   applyStateStyle();
-
-    CLabel                 m_label;
-    ClickCallback          m_clickCallback;
-    bool                   m_pressed = false;
-};
+      private:
+        CLabel        m_label;
+        ClickCallback m_clickCallback;
+    };
 
 }
