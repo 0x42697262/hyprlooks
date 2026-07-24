@@ -12,8 +12,14 @@ GTK/Qt, no Node.js — just the compositor's own OpenGL/GLES3 renderer.
 
 ## Features
 
-- **Lua-configured widgets** — `hl.plugin.hyprlooks.bar({ ... })` in your
-  `hyprland.lua`
+- **Lua-configured widgets** — `hl.plugin.hyprlooks.bar({ ... })` and
+  `hl.plugin.hyprlooks.panel({ ... })` in your `hyprland.lua`
+- **Bars and free-floating panels** — top/bottom/left/right bars plus
+  anchored panels (Vivaldi-style vertical side docks, status strips, ...)
+- **Flexbox layout** — `layout = { direction = "column", gap, justify, align }`
+  with nested `children`, so you compose real UIs, not just a strip of icons
+- **Space reservation** — bars (and opt-in panels) reserve monitor area so
+  tiled windows are not covered, like a layer-shell exclusive zone
 - **In-process rendering** — uses Hyprland's render pass system (`EK_CUSTOM`),
   damage tracking, and occlusion culling
 - **Command pattern** — all render and input operations are command objects,
@@ -82,7 +88,34 @@ hl.plugin.hyprlooks.bar({
 })
 ```
 
-See `examples/default_bar.lua` for a complete example.
+### Panels (vertical docks, floating surfaces)
+
+A panel is a self-positioning container. Give it an `anchor`, a size, an
+optional `layout`, and `children`:
+
+```lua
+hl.plugin.hyprlooks.panel({
+    anchor  = "left",          -- top | bottom | left | right | center | fill
+    width   = 56,
+    margin  = { 8, 48 },
+    reserve = true,            -- keep tiled windows clear of it (default false)
+    layout  = { direction = "column", gap = 10, align = "center" },
+    children = {
+        { type = "button", icon = "󰈹", on_click = function()
+            hl.dispatch(hl.dsp.exec_cmd("firefox"))
+        end },
+        { type = "image", path = "/path/to/icon.png", size = { 32, 32 } },
+    },
+})
+```
+
+Any container (`type = "container"`) accepts the same `layout` + `children`.
+Layout keys: `direction` (`row`/`column`), `justify`
+(`start`/`center`/`end`/`space_between`), `align`
+(`start`/`center`/`end`/`stretch`), and `gap`.
+
+See `examples/vivaldi_desktop.lua` for a full bar + side-dock desktop, or
+`examples/default_bar.lua` for a minimal bar.
 
 ## Safety System
 
@@ -109,8 +142,13 @@ SAFE_MODE and DISABLED require manual recovery.
 ### Lua API
 
 - `hl.plugin.hyprlooks.bar({ ... })` — create a bar
-- `hl.plugin.hyprlooks.widget({ ... })` — create a standalone widget
+- `hl.plugin.hyprlooks.panel({ ... })` — create an anchored/floating panel
+- `hl.plugin.hyprlooks.widget({ ... })` — mount a standalone widget on a monitor
 - `hl.plugin.hyprlooks.status()` — get safety status string
+
+Widget types: `container`, `panel`, `label`, `box`, `button`, `image`,
+`clock`, `workspaces`. Containers/panels take `layout` + `children`; `image`
+takes `path` + optional `size`; `button` takes `text`/`icon` + `on_click`.
 
 ## Architecture
 

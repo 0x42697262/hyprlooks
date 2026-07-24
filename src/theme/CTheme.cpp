@@ -10,6 +10,7 @@ namespace Hyprlooks {
         switch (type) {
             case eWidgetType::BAR: return CThemeDefaults::barStyle();
             case eWidgetType::CONTAINER: return CThemeDefaults::containerStyle();
+            case eWidgetType::PANEL: return CThemeDefaults::panelStyle();
             case eWidgetType::LABEL: return CThemeDefaults::labelStyle();
             case eWidgetType::BOX: return CThemeDefaults::boxStyle();
             case eWidgetType::BUTTON: return CThemeDefaults::buttonStyle();

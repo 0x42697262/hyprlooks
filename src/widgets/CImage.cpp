@@ -21,6 +21,11 @@ namespace Hyprlooks {
         markDirty();
     }
 
+    void CImage::setSize(const Hyprutils::Math::Vector2D& size) {
+        m_size = size;
+        markDirty();
+    }
+
     eWidgetType CImage::type() const {
         return eWidgetType::IMAGE;
     }
@@ -30,6 +35,8 @@ namespace Hyprlooks {
     }
 
     Hyprutils::Math::Vector2D CImage::measure() const {
+        if (m_size.x > 0.F || m_size.y > 0.F)
+            return m_size;
         if (m_texture && m_texture->ok())
             return m_texture->m_size;
         return {0.F, 0.F};

@@ -6,6 +6,7 @@
 #include "platform/CHyprlandInput.hpp"
 #include "platform/CHyprlandEventBus.hpp"
 #include "platform/CHyprlandConfig.hpp"
+#include "platform/CHyprlandReservation.hpp"
 
 #include "core/CWidgetRegistry.hpp"
 #include "core/CWidgetTree.hpp"
@@ -92,6 +93,7 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
             throw std::runtime_error("hyprlooks: Lua API init failed");
 
         eventBus()->subscribeConfigPreReload([]() {
+            reservation()->clearAll();
             clearWidgetTrees();
             luaAPI()->onPreReload();
             renderer()->scheduleAllFrames();
@@ -121,6 +123,7 @@ APICALL EXPORT void PLUGIN_EXIT() {
         eventBus()->disconnectAll();
         inputManager()->shutdown();
         widgetRenderer()->shutdown();
+        reservation()->clearAll();
         clearWidgetTrees();
         luaAPI()->shutdown();
         Log::logger->log(Log::INFO, "[hyprlooks] shutdown complete");

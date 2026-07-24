@@ -22,6 +22,7 @@ namespace Hyprlooks {
         UNKNOWN = 0,
         BAR,
         CONTAINER,
+        PANEL,
         LABEL,
         BOX,
         BUTTON,

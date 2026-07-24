@@ -38,7 +38,7 @@ namespace Hyprlooks {
             return hit;
         }
 
-        if (w->type() == eWidgetType::CONTAINER) {
+        if (w->type() == eWidgetType::CONTAINER || w->type() == eWidgetType::PANEL) {
             auto* container = static_cast<CContainer*>(w);
             for (const auto& child : container->children()) {
                 if (auto* hit = hitTestRecursive(child.get(), localPos))

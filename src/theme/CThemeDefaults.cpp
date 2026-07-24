@@ -42,6 +42,22 @@ namespace Hyprlooks {
         return s;
     }
 
+    SWidgetStyle CThemeDefaults::panelStyle() {
+        SWidgetStyle s;
+        s.bgColor        = bgColor();
+        s.blur           = true;
+        s.blurAlpha      = 0.8F;
+        s.borderRadius   = {12.F, 12.F, 12.F, 12.F};
+        s.border.width   = 1.F;
+        s.border.color   = CHyprColor{0.15F, 0.15F, 0.20F, 0.8F};
+        s.shadow.enabled = true;
+        s.shadow.range   = 20.F;
+        s.shadow.color   = CHyprColor{0.F, 0.F, 0.F, 0.4F};
+        s.padding        = {10.F, 10.F};
+        s.gaps           = {8.F, 8.F};
+        return s;
+    }
+
     SWidgetStyle CThemeDefaults::labelStyle() {
         SWidgetStyle s;
         s.fgColor  = textColor();

@@ -19,6 +19,7 @@ namespace Hyprlooks {
 
       private:
         static int luaBar(lua_State* L);
+        static int luaPanel(lua_State* L);
         static int luaWidget(lua_State* L);
         static int luaStatus(lua_State* L);
     };
