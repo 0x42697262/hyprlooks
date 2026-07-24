@@ -32,45 +32,55 @@ static SWidgetStyle parseStyleFromLua(lua_State* L, int idx) {
     if (!lua_istable(L, idx))
         return style;
 
+    idx = lua_absindex(L, idx);
+
     if (CLuaUtils::getField(L, "bg", idx)) {
         style.bgColor = CLuaUtils::colorFromTable(L, -1);
-        lua_pop(L, 1);
     }
+    lua_pop(L, 1);
+
     if (CLuaUtils::getField(L, "fg", idx)) {
         style.fgColor = CLuaUtils::colorFromTable(L, -1);
-        lua_pop(L, 1);
     }
+    lua_pop(L, 1);
+
     if (CLuaUtils::getField(L, "hover_bg", idx)) {
         style.hoverBgColor = CLuaUtils::colorFromTable(L, -1);
-        lua_pop(L, 1);
     }
+    lua_pop(L, 1);
+
     if (CLuaUtils::getField(L, "blur", idx)) {
         style.blur = lua_toboolean(L, -1);
-        lua_pop(L, 1);
     }
+    lua_pop(L, 1);
+
     if (CLuaUtils::getField(L, "blur_alpha", idx)) {
         style.blurAlpha = sc<float>(lua_tonumber(L, -1));
-        lua_pop(L, 1);
     }
+    lua_pop(L, 1);
+
     if (CLuaUtils::getField(L, "font_size", idx)) {
         style.fontSize = sc<float>(lua_tonumber(L, -1));
-        lua_pop(L, 1);
     }
+    lua_pop(L, 1);
+
     if (CLuaUtils::getField(L, "font_family", idx)) {
         style.fontFamily = lua_tostring(L, -1);
-        lua_pop(L, 1);
     }
+    lua_pop(L, 1);
+
     if (CLuaUtils::getField(L, "padding", idx)) {
         if (lua_istable(L, -1)) {
             lua_rawgeti(L, -1, 1);
             lua_rawgeti(L, -2, 2);
             style.padding = {sc<float>(lua_tonumber(L, -2)), sc<float>(lua_tonumber(L, -1))};
             lua_pop(L, 2);
-        } else {
+        } else if (lua_isnumber(L, -1)) {
             style.padding = {sc<float>(lua_tonumber(L, -1)), sc<float>(lua_tonumber(L, -1))};
         }
-        lua_pop(L, 1);
     }
+    lua_pop(L, 1);
+
     if (CLuaUtils::getField(L, "border_radius", idx)) {
         if (lua_istable(L, -1)) {
             lua_rawgeti(L, -1, 1);
@@ -82,16 +92,17 @@ static SWidgetStyle parseStyleFromLua(lua_State* L, int idx) {
             style.borderRadius.bottomLeft  = sc<float>(lua_tonumber(L, -2));
             style.borderRadius.bottomRight = sc<float>(lua_tonumber(L, -1));
             lua_pop(L, 4);
-        } else {
+        } else if (lua_isnumber(L, -1)) {
             float r = sc<float>(lua_tonumber(L, -1));
             style.borderRadius = {r, r, r, r};
         }
-        lua_pop(L, 1);
     }
+    lua_pop(L, 1);
+
     if (CLuaUtils::getField(L, "opacity", idx)) {
         style.opacity = sc<float>(lua_tonumber(L, -1));
-        lua_pop(L, 1);
     }
+    lua_pop(L, 1);
 
     return style;
 }
@@ -99,6 +110,8 @@ static SWidgetStyle parseStyleFromLua(lua_State* L, int idx) {
 static UP<IWidget> parseWidgetFromLua(lua_State* L, int idx) {
     if (!lua_istable(L, idx))
         return nullptr;
+
+    idx = lua_absindex(L, idx);
 
     lua_getfield(L, idx, "type");
     std::string type = lua_isstring(L, -1) ? lua_tostring(L, -1) : "";
@@ -158,6 +171,7 @@ static void parseWidgetList(lua_State* L, int idx, CContainer* container) {
     if (!lua_istable(L, idx))
         return;
 
+    idx = lua_absindex(L, idx);
     lua_pushnil(L);
     while (lua_next(L, idx) != 0) {
         auto widget = parseWidgetFromLua(L, -1);
