@@ -1,0 +1,9 @@
+[repository]
+name = "hyprlooks"
+authors = ["0x42697262"]
+
+[hyprlooks]
+description = "In-process UI system for Hyprland — Vivaldi-styled bars and widgets rendered in the compositor"
+authors = ["0x42697262"]
+output = "hyprlooks.so"
+build = ["make all"]

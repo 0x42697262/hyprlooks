@@ -1,0 +1,30 @@
+#include "CLuaWidgetFactory.hpp"
+#include "../core/CWidgetRegistry.hpp"
+#include "../widgets/CBar.hpp"
+#include "../widgets/CContainer.hpp"
+#include "../widgets/CLabel.hpp"
+#include "../widgets/CBox.hpp"
+#include "../widgets/CButton.hpp"
+#include "../widgets/CImage.hpp"
+
+namespace Hyprlooks {
+
+void CLuaWidgetFactory::registerBuiltinWidgets() {
+    registerWidgetTypes();
+}
+
+void CLuaWidgetFactory::registerWidgetTypes() {
+    widgetRegistry()->registerType("bar", [] { return makeUnique<CBar>(); });
+    widgetRegistry()->registerType("container", [] { return makeUnique<CContainer>(); });
+    widgetRegistry()->registerType("label", [] { return makeUnique<CLabel>(); });
+    widgetRegistry()->registerType("box", [] { return makeUnique<CBox>(); });
+    widgetRegistry()->registerType("button", [] { return makeUnique<CButton>(); });
+    widgetRegistry()->registerType("image", [] { return makeUnique<CImage>(); });
+}
+
+UP<CLuaWidgetFactory>& luaWidgetFactory() {
+    static UP<CLuaWidgetFactory> factory = makeUnique<CLuaWidgetFactory>();
+    return factory;
+}
+
+}

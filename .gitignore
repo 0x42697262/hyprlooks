@@ -1,0 +1,4 @@
+hyprlooks.so
+*.o
+*.d
+build/
