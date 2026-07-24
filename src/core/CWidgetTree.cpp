@@ -107,4 +107,8 @@ namespace Hyprlooks {
         treeMap().erase(pMonitor->m_id);
     }
 
+    void clearWidgetTrees() {
+        treeMap().clear();
+    }
+
 }

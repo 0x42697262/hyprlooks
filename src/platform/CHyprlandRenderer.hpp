@@ -19,6 +19,7 @@ class CHyprlandRenderer {
     void                     scheduleFrame(PHLMONITOR pMonitor);
     void                     scheduleAllFrames();
     void                     addPassElement(UP<IPassElement>&& element);
+    void                     removePassElements(const std::string& type);
     SP<Render::ITexture>     renderText(const std::string& text, const CHyprColor& col, int pt, bool italic = false, const std::string& fontFamily = "", int maxWidth = 0);
     SP<Render::ITexture>     loadAsset(const std::string& filename);
     SP<Render::ITexture>     createTextureFromCairo(cairo_surface_t* surface);

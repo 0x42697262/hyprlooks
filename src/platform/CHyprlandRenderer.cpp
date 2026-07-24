@@ -28,6 +28,12 @@ void CHyprlandRenderer::addPassElement(UP<IPassElement>&& element) {
     g_pHyprRenderer->m_renderPass.add(std::move(element));
 }
 
+void CHyprlandRenderer::removePassElements(const std::string& type) {
+    if (!g_pHyprRenderer)
+        return;
+    g_pHyprRenderer->m_renderPass.removeAllOfType(type);
+}
+
 SP<Render::ITexture> CHyprlandRenderer::renderText(const std::string& text, const CHyprColor& col, int pt, bool italic, const std::string& fontFamily, int maxWidth) {
     if (!g_pHyprRenderer)
         return nullptr;

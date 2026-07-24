@@ -91,7 +91,11 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
         if (!luaAPI()->init())
             throw std::runtime_error("hyprlooks: Lua API init failed");
 
-        eventBus()->subscribeConfigPreReload([]() { luaAPI()->onPreReload(); });
+        eventBus()->subscribeConfigPreReload([]() {
+            clearWidgetTrees();
+            luaAPI()->onPreReload();
+            renderer()->scheduleAllFrames();
+        });
         widgetRenderer()->init(eventBus().get(), renderer().get(), safety.get());
         inputManager()->init(eventBus().get(), input().get(), safety.get());
 
@@ -114,9 +118,10 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
 
 APICALL EXPORT void PLUGIN_EXIT() {
     CCrashIsolation::guard("PLUGIN_EXIT", [&]() {
+        eventBus()->disconnectAll();
         inputManager()->shutdown();
         widgetRenderer()->shutdown();
-        eventBus()->disconnectAll();
+        clearWidgetTrees();
         luaAPI()->shutdown();
         Log::logger->log(Log::INFO, "[hyprlooks] shutdown complete");
     });

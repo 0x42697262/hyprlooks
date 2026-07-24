@@ -50,5 +50,6 @@ namespace Hyprlooks {
 
     UP<CWidgetTree>& widgetTreeForMonitor(PHLMONITOR pMonitor);
     void             removeWidgetTreeForMonitor(PHLMONITOR pMonitor);
+    void             clearWidgetTrees();
 
 }

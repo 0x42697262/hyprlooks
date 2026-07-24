@@ -32,6 +32,8 @@ namespace Hyprlooks {
         void                              fireClick();
 
       private:
+        void          applyLabelStyle(const SWidgetStyle& style);
+
         CLabel        m_label;
         ClickCallback m_clickCallback;
     };

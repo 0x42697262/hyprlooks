@@ -16,6 +16,8 @@ namespace Hyprlooks {
     }
 
     void CWidgetRenderer::shutdown() {
+        if (m_renderer)
+            m_renderer->removePassElements("CWidgetPassElement");
         m_eventBus = nullptr;
         m_renderer = nullptr;
         m_safety   = nullptr;

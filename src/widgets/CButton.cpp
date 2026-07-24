@@ -41,15 +41,7 @@ namespace Hyprlooks {
 
     void CButton::setStyle(const SWidgetStyle& s) {
         IWidget::setStyle(s);
-
-        auto labelStyle       = m_label.style();
-        labelStyle.fgColor    = s.fgColor;
-        labelStyle.fontFamily = s.fontFamily;
-        labelStyle.fontSize   = s.fontSize;
-        labelStyle.fontItalic = s.fontItalic;
-        labelStyle.fontWeight = s.fontWeight;
-        labelStyle.opacity    = s.opacity;
-        m_label.setStyle(labelStyle);
+        applyLabelStyle(s);
     }
 
     bool CButton::interactive() const {
@@ -90,14 +82,7 @@ namespace Hyprlooks {
             }));
         }
 
-        auto labelStyle       = m_label.style();
-        labelStyle.fgColor    = effectiveStyle.fgColor;
-        labelStyle.fontFamily = effectiveStyle.fontFamily;
-        labelStyle.fontSize   = effectiveStyle.fontSize;
-        labelStyle.fontItalic = effectiveStyle.fontItalic;
-        labelStyle.fontWeight = effectiveStyle.fontWeight;
-        labelStyle.opacity    = effectiveStyle.opacity;
-        m_label.setStyle(labelStyle);
+        applyLabelStyle(effectiveStyle);
         auto labelCommands = m_label.buildRenderCommands(monitorScale);
         for (auto& cmd : labelCommands)
             commands.push_back(std::move(cmd));
@@ -108,6 +93,22 @@ namespace Hyprlooks {
     void CButton::fireClick() {
         if (m_clickCallback)
             m_clickCallback();
+    }
+
+    void CButton::applyLabelStyle(const SWidgetStyle& style) {
+        const auto& current = m_label.style();
+        if (current.fgColor == style.fgColor && current.fontFamily == style.fontFamily && current.fontSize == style.fontSize && current.fontItalic == style.fontItalic &&
+            current.fontWeight == style.fontWeight && current.opacity == style.opacity)
+            return;
+
+        auto nextStyle       = current;
+        nextStyle.fgColor    = style.fgColor;
+        nextStyle.fontFamily = style.fontFamily;
+        nextStyle.fontSize   = style.fontSize;
+        nextStyle.fontItalic = style.fontItalic;
+        nextStyle.fontWeight = style.fontWeight;
+        nextStyle.opacity    = style.opacity;
+        m_label.setStyle(nextStyle);
     }
 
 }

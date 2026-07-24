@@ -29,7 +29,7 @@ namespace Hyprlooks {
     }
 
     void CClock::setIntervalMs(uint32_t ms) {
-        m_intervalMs = ms;
+        m_intervalMs = std::max(1U, ms);
         armTimer();
     }
 
@@ -60,6 +60,9 @@ namespace Hyprlooks {
     void CClock::armTimer() {
         if (!g_pEventLoopManager)
             return;
+
+        if (m_timer)
+            m_timer->cancel();
 
         m_timer = makeShared<CEventLoopTimer>(
             std::chrono::milliseconds(m_intervalMs),
