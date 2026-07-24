@@ -68,6 +68,11 @@ CHyprColor CLuaUtils::colorFromTable(lua_State* L, int idx) {
     if (!lua_istable(L, idx))
         return c;
 
+    // Normalize to an absolute index: the lua_rawgeti calls below push values
+    // onto the stack, which would shift a relative (negative) idx out from under
+    // the table and cause a raw access on a non-table value.
+    idx = lua_absindex(L, idx);
+
     lua_rawgeti(L, idx, 1);
     lua_rawgeti(L, idx, 2);
     lua_rawgeti(L, idx, 3);
