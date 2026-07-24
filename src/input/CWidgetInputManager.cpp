@@ -56,8 +56,10 @@ namespace Hyprlooks {
     }
 
     void CWidgetInputManager::setHovered(IWidget* w) {
-        auto previous = m_hoveredWidget.lock();
-        if (previous.get() == w)
+        // self-pointers are weak ptrs over UP-owned widgets: not lockable, so
+        // use get() (returns null once the widget is destroyed) instead of lock().
+        auto* previous = m_hoveredWidget.get();
+        if (previous == w)
             return;
 
         if (previous && previous->interactive())
@@ -66,8 +68,7 @@ namespace Hyprlooks {
         m_hoveredWidget = w ? w->self() : WP<IWidget>{};
 
         if (w && w->interactive()) {
-            auto pressed = m_pressedWidget.lock();
-            if (pressed.get() == w)
+            if (m_pressedWidget.get() == w)
                 w->setState(makeUnique<CPressedState>());
             else
                 w->setState(makeUnique<CHoverState>());
@@ -75,7 +76,7 @@ namespace Hyprlooks {
     }
 
     void CWidgetInputManager::clearHovered() {
-        auto previous = m_hoveredWidget.lock();
+        auto* previous = m_hoveredWidget.get();
         if (previous && previous->interactive())
             previous->setState(makeUnique<CNormalState>());
         m_hoveredWidget.reset();
@@ -124,10 +125,10 @@ namespace Hyprlooks {
                 m_pressedWidget = hit->self();
                 hit->setState(makeUnique<CPressedState>());
             } else {
-                auto pressed = m_pressedWidget.lock();
+                auto* pressed = m_pressedWidget.get();
                 m_pressedWidget.reset();
 
-                if (pressed.get() == hit) {
+                if (pressed == hit) {
                     hit->setState(makeUnique<CHoverState>());
                     if (hit->type() == eWidgetType::BUTTON) {
                         auto* btn = static_cast<CButton*>(hit);

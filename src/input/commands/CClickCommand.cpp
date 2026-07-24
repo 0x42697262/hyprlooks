@@ -8,8 +8,10 @@ namespace Hyprlooks {
     }
 
     void CClickCommand::execute() {
-        auto widget = m_widget.lock();
-        if (widget && m_callback)
+        // m_widget is a weak ptr over a UP-owned widget; such a weak ptr is
+        // deliberately non-lockable in hyprutils. Use valid() to confirm the
+        // widget still exists rather than lock() (which always returns empty).
+        if (m_widget.valid() && m_callback)
             m_callback();
     }
 

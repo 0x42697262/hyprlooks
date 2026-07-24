@@ -15,7 +15,8 @@ namespace Hyprlooks {
     }
 
     bool CFocusManager::hasFocus() const {
-        return m_focused.lock().get() != nullptr;
+        // weak ptr over a UP-owned widget cannot be locked; query validity.
+        return m_focused.valid();
     }
 
 }
