@@ -17,8 +17,13 @@ namespace Hyprlooks {
 
         IWidget* hitTest(CWidgetTree* tree, const Hyprutils::Math::Vector2D& globalPos);
 
+        // Deepest scrollable container under the cursor, or null. Used to route
+        // mouse-wheel events regardless of which (interactive) child is hit.
+        IWidget* scrollableAt(CWidgetTree* tree, const Hyprutils::Math::Vector2D& globalPos);
+
       private:
         IWidget* hitTestRecursive(IWidget* w, const Hyprutils::Math::Vector2D& localPos);
+        IWidget* scrollableRecursive(IWidget* w, const Hyprutils::Math::Vector2D& localPos);
     };
 
 }

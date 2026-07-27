@@ -45,4 +45,8 @@ namespace Hyprlooks {
         return "CDrawTextureCommand";
     }
 
+    void CDrawTextureCommand::setClip(const Hyprutils::Math::CBox& clip) {
+        m_params.clipBox = clip;
+    }
+
 }

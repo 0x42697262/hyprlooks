@@ -5,11 +5,13 @@
 
 #include "../platform/CHyprlandConfig.hpp"
 #include "../platform/CHyprlandReservation.hpp"
+#include "../platform/CHyprlandRenderer.hpp"
 #include "../core/CWidgetTree.hpp"
 #include "../core/CWidgetRegistry.hpp"
 #include "../widgets/CBar.hpp"
 #include "../widgets/CContainer.hpp"
 #include "../widgets/CPanel.hpp"
+#include "../widgets/CScroll.hpp"
 #include "../widgets/CLabel.hpp"
 #include "../widgets/CButton.hpp"
 #include "../widgets/CBox.hpp"
@@ -26,7 +28,34 @@
 #include <src/Compositor.hpp>
 #include <src/debug/log/Logger.hpp>
 
+#include <unordered_map>
+
 namespace Hyprlooks {
+
+    // Named, toggleable popups (flyouts / launchers). Weak refs into the stage;
+    // cleared on config reload. get() yields null once the popup is destroyed.
+    static std::unordered_map<std::string, WP<IWidget>>& popupRegistry() {
+        static std::unordered_map<std::string, WP<IWidget>> reg;
+        return reg;
+    }
+
+    static void applyPopupVisibility(const std::string& id, int mode) {
+        // mode: 0 = toggle, 1 = show, 2 = hide
+        auto& reg = popupRegistry();
+        auto  it  = reg.find(id);
+        if (it == reg.end())
+            return;
+
+        auto* w = it->second.get();
+        if (!w)
+            return;
+
+        const bool nv = mode == 0 ? !w->isVisible() : (mode == 1);
+        w->setVisible(nv);
+
+        static CHyprlandRenderer renderer;
+        renderer.scheduleAllFrames();
+    }
 
     static UP<CLuaCallbackStore>& callbackStore() {
         static UP<CLuaCallbackStore> store = makeUnique<CLuaCallbackStore>();
@@ -414,6 +443,23 @@ namespace Hyprlooks {
             auto* panel = static_cast<CPanel*>(widget.get());
             applyPanelGeometry(L, idx, panel);
             applyContainerConfig(L, idx, panel);
+        } else if (type == "scroll") {
+            auto* scroll = static_cast<CScroll*>(widget.get());
+
+            lua_getfield(L, idx, "gap");
+            if (lua_isnumber(L, -1))
+                scroll->setGap(sc<float>(lua_tonumber(L, -1)));
+            lua_pop(L, 1);
+
+            lua_getfield(L, idx, "height");
+            if (lua_isnumber(L, -1))
+                scroll->setFixedHeight(sc<float>(lua_tonumber(L, -1)));
+            lua_pop(L, 1);
+
+            lua_getfield(L, idx, "children");
+            if (lua_istable(L, -1))
+                parseWidgetList(L, -1, scroll);
+            lua_pop(L, 1);
         } else if (type == "image") {
             auto* img = static_cast<CImage*>(widget.get());
 
@@ -588,6 +634,70 @@ namespace Hyprlooks {
         return 0;
     }
 
+    int CLuaAPI::luaPopup(lua_State* L) {
+        luaL_checktype(L, 1, LUA_TTABLE);
+
+        auto  popup = makeUnique<CPanel>();
+        auto* raw   = popup.get();
+
+        lua_getfield(L, 1, "style");
+        if (lua_istable(L, -1)) {
+            auto style = parseStyleFromLua(L, -1);
+            raw->setStyle(theme()->resolve(eWidgetType::PANEL, style));
+        }
+        lua_pop(L, 1);
+
+        // popups default to centered; anchor/size in the table override this.
+        raw->setAnchor(ePanelAnchor::CENTER);
+        applyPanelGeometry(L, 1, raw);
+        applyContainerConfig(L, 1, raw);
+
+        std::string id;
+        lua_getfield(L, 1, "id");
+        if (lua_isstring(L, -1))
+            id = lua_tostring(L, -1);
+        lua_pop(L, 1);
+
+        bool visible = false;
+        lua_getfield(L, 1, "visible");
+        if (lua_isboolean(L, -1))
+            visible = lua_toboolean(L, -1);
+        lua_pop(L, 1);
+        raw->setVisible(visible);
+
+        std::string monitorName;
+        lua_getfield(L, 1, "monitor");
+        if (lua_isstring(L, -1))
+            monitorName = lua_tostring(L, -1);
+        lua_pop(L, 1);
+
+        PHLMONITOR targetMonitor = resolveMonitor(monitorName);
+        if (!targetMonitor) {
+            Log::logger->log(Log::WARN, "[hyprlooks] no monitor found for popup");
+            return 0;
+        }
+
+        mountOnMonitor(targetMonitor, std::move(popup));
+        if (!id.empty())
+            popupRegistry()[id] = raw->self();
+        return 0;
+    }
+
+    int CLuaAPI::luaToggle(lua_State* L) {
+        applyPopupVisibility(luaL_checkstring(L, 1), 0);
+        return 0;
+    }
+
+    int CLuaAPI::luaShow(lua_State* L) {
+        applyPopupVisibility(luaL_checkstring(L, 1), 1);
+        return 0;
+    }
+
+    int CLuaAPI::luaHide(lua_State* L) {
+        applyPopupVisibility(luaL_checkstring(L, 1), 2);
+        return 0;
+    }
+
     int CLuaAPI::luaWidget(lua_State* L) {
         luaL_checktype(L, 1, LUA_TTABLE);
 
@@ -628,6 +738,22 @@ namespace Hyprlooks {
             Log::logger->log(Log::ERR, "[hyprlooks] failed to register lua function: panel");
             return false;
         }
+        if (!config.addLuaFunction("hyprlooks", "popup", &luaPopup)) {
+            Log::logger->log(Log::ERR, "[hyprlooks] failed to register lua function: popup");
+            return false;
+        }
+        if (!config.addLuaFunction("hyprlooks", "toggle", &luaToggle)) {
+            Log::logger->log(Log::ERR, "[hyprlooks] failed to register lua function: toggle");
+            return false;
+        }
+        if (!config.addLuaFunction("hyprlooks", "show", &luaShow)) {
+            Log::logger->log(Log::ERR, "[hyprlooks] failed to register lua function: show");
+            return false;
+        }
+        if (!config.addLuaFunction("hyprlooks", "hide", &luaHide)) {
+            Log::logger->log(Log::ERR, "[hyprlooks] failed to register lua function: hide");
+            return false;
+        }
         if (!config.addLuaFunction("hyprlooks", "widget", &luaWidget)) {
             Log::logger->log(Log::ERR, "[hyprlooks] failed to register lua function: widget");
             return false;
@@ -649,6 +775,7 @@ namespace Hyprlooks {
 
     void CLuaAPI::onPreReload() {
         callbackStore()->releaseAll();
+        popupRegistry().clear();
     }
 
     UP<CLuaAPI>& luaAPI() {

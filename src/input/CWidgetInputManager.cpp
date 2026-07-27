@@ -8,6 +8,8 @@
 #include "../state/CHoverState.hpp"
 #include "../state/CPressedState.hpp"
 #include "../widgets/CButton.hpp"
+#include "../widgets/CScroll.hpp"
+#include "../platform/CHyprlandRenderer.hpp"
 
 #include <src/Compositor.hpp>
 
@@ -154,8 +156,20 @@ namespace Hyprlooks {
             if (!tree || !tree->root())
                 return;
 
-            IWidget* hit = m_hitTester.hitTest(tree, cursorPos);
-            if (hit)
+            // route vertical wheel to a scrollable container under the cursor
+            if (auto* scrollable = m_hitTester.scrollableAt(tree, cursorPos)) {
+                info.cancelled = true;
+                if (e.axis == WL_POINTER_AXIS_VERTICAL_SCROLL) {
+                    static constexpr double SCROLL_SPEED = 3.0;
+                    static_cast<CScroll*>(scrollable)->scrollBy(e.delta * SCROLL_SPEED);
+                    static CHyprlandRenderer renderer;
+                    renderer.scheduleAllFrames();
+                }
+                return;
+            }
+
+            // otherwise just consume the event if it lands on our UI
+            if (m_hitTester.hitTest(tree, cursorPos))
                 info.cancelled = true;
         });
     }

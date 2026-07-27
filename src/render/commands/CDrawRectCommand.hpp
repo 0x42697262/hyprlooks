@@ -28,6 +28,7 @@ namespace Hyprlooks {
         virtual ePriority                            priority() const override;
         virtual bool                                 isExpensive() const override;
         virtual const char*                          name() const override;
+        virtual void                                 setClip(const Hyprutils::Math::CBox& clip) override;
 
       private:
         SParams m_params;

@@ -41,4 +41,8 @@ namespace Hyprlooks {
         return "CDrawRectCommand";
     }
 
+    void CDrawRectCommand::setClip(const Hyprutils::Math::CBox& clip) {
+        m_params.clipBox = clip;
+    }
+
 }

@@ -20,6 +20,14 @@ local function launch(cmd)
     return function() hl.dispatch(hl.dsp.exec_cmd(cmd)) end
 end
 
+-- launch an app and close the launcher popup afterwards
+local function launch_close(cmd)
+    return function()
+        hl.dispatch(hl.dsp.exec_cmd(cmd))
+        hl.plugin.hyprlooks.hide("launcher")
+    end
+end
+
 -- helper: a square icon button for the app rail
 local function rail_button(icon, cmd, fg)
     return {
@@ -53,8 +61,8 @@ hl.plugin.hyprlooks.bar({
     left = {
         {
             type     = "button",
-            icon     = "󰀻", -- app launcher
-            on_click = launch("wofi --show drun"),
+            icon     = "󰀻", -- app launcher (toggles the popup below)
+            on_click = function() hl.plugin.hyprlooks.toggle("launcher") end,
             style    = { fg = accent, font_size = 16, hover_bg = hover, border_radius = 8, padding = { 8, 4 } },
         },
         {
@@ -111,5 +119,55 @@ hl.plugin.hyprlooks.panel({
                 rail_button("󰍃", "hyprctl dispatch exit", { 0.9, 0.4, 0.4, 1 }),
             },
         },
+    },
+})
+
+--------------------------------------------------------------------------------
+-- App launcher: a centered popup with a scrollable list, toggled by the
+-- top-bar launcher button. Demonstrates popup() + toggle/hide + scroll.
+--------------------------------------------------------------------------------
+local apps = {
+    { "󰈹  Firefox", "firefox" },
+    { "󰊯  Chromium", "chromium" },
+    { "󰆍  Terminal", "kitty" },
+    { "󰉋  Files", "nautilus" },
+    { "󰨞  VS Code", "code" },
+    { "󰭹  Discord", "discord" },
+    { "󰓇  Spotify", "spotify" },
+    { "󰋩  Images", "imv" },
+    { "󰎁  Video", "mpv" },
+    { "󰇮  Mail", "thunderbird" },
+    { "󰃽  Calculator", "gnome-calculator" },
+    { "󰒓  System Monitor", "kitty -e htop" },
+}
+
+local app_buttons = {}
+for _, app in ipairs(apps) do
+    table.insert(app_buttons, {
+        type     = "button",
+        text     = app[1],
+        on_click = launch_close(app[2]),
+        style    = { fg = text, font_size = 15, padding = { 12, 10 }, hover_bg = hover, border_radius = 8 },
+    })
+end
+
+hl.plugin.hyprlooks.popup({
+    id      = "launcher",
+    anchor  = "center",
+    width   = 380,
+    height  = 460,
+    visible = false, -- starts hidden; the top-bar launcher button toggles it
+    style   = {
+        bg            = { 0.10, 0.10, 0.13, 0.96 },
+        blur          = true,
+        blur_alpha    = 0.9,
+        border_radius = 16,
+        padding       = { 14, 14 },
+    },
+    layout   = { direction = "column", gap = 10, align = "stretch" },
+    children = {
+        { type = "label", text = "Applications", style = { fg = muted, font_size = 13 } },
+        -- fixed viewport height => scrolls when the app list overflows it
+        { type = "scroll", height = 380, gap = 6, children = app_buttons },
     },
 })

@@ -23,6 +23,7 @@ namespace Hyprlooks {
         BAR,
         CONTAINER,
         PANEL,
+        SCROLL,
         LABEL,
         BOX,
         BUTTON,

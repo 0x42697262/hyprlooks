@@ -114,6 +114,28 @@ Layout keys: `direction` (`row`/`column`), `justify`
 (`start`/`center`/`end`/`space_between`), `align`
 (`start`/`center`/`end`/`stretch`), and `gap`.
 
+### Popups / launchers and scrollable lists
+
+Named popups toggle from any `on_click`, and `scroll` gives you a
+wheel-scrollable list clipped to a fixed viewport:
+
+```lua
+hl.plugin.hyprlooks.popup({
+    id = "launcher", anchor = "center", width = 380, height = 460,
+    visible = false,                       -- toggled on demand
+    layout = { direction = "column", gap = 10, align = "stretch" },
+    children = {
+        { type = "label", text = "Applications" },
+        { type = "scroll", height = 380, gap = 6, children = { --[[ buttons ]] } },
+    },
+})
+
+-- from a button:  on_click = function() hl.plugin.hyprlooks.toggle("launcher") end
+```
+
+Visibility functions: `hl.plugin.hyprlooks.toggle(id)` / `show(id)` / `hide(id)`.
+A `scroll` only scrolls when its `height` is smaller than its content.
+
 See `examples/vivaldi_desktop.lua` for a full bar + side-dock desktop, or
 `examples/default_bar.lua` for a minimal bar.
 
@@ -143,12 +165,15 @@ SAFE_MODE and DISABLED require manual recovery.
 
 - `hl.plugin.hyprlooks.bar({ ... })` — create a bar
 - `hl.plugin.hyprlooks.panel({ ... })` — create an anchored/floating panel
+- `hl.plugin.hyprlooks.popup({ id = ..., ... })` — create a toggleable popup
+- `hl.plugin.hyprlooks.toggle(id)` / `show(id)` / `hide(id)` — popup visibility
 - `hl.plugin.hyprlooks.widget({ ... })` — mount a standalone widget on a monitor
 - `hl.plugin.hyprlooks.status()` — get safety status string
 
-Widget types: `container`, `panel`, `label`, `box`, `button`, `image`,
-`clock`, `workspaces`. Containers/panels take `layout` + `children`; `image`
-takes `path` + optional `size`; `button` takes `text`/`icon` + `on_click`.
+Widget types: `container`, `panel`, `scroll`, `label`, `box`, `button`,
+`image`, `clock`, `workspaces`. Containers/panels/scroll take `layout` +
+`children`; `scroll` also takes `height` (viewport) + `gap`; `image` takes
+`path` + optional `size`; `button` takes `text`/`icon` + `on_click`.
 
 ## Architecture
 

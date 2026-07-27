@@ -30,6 +30,13 @@ namespace Hyprlooks {
         virtual ePriority                            priority() const                      = 0;
         virtual bool                                 isExpensive() const                   = 0;
         virtual const char*                          name() const                          = 0;
+
+        // Restrict this command's drawing to `clip` (monitor-local, unscaled).
+        // Default no-op; commands that support clipping override it. Used by
+        // scrollable containers to clip overflowing content to their viewport.
+        virtual void                                 setClip(const Hyprutils::Math::CBox& clip) {
+            (void)clip;
+        }
     };
 
 }
