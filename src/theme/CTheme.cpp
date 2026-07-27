@@ -12,6 +12,7 @@ namespace Hyprlooks {
             case eWidgetType::CONTAINER: return CThemeDefaults::containerStyle();
             case eWidgetType::PANEL: return CThemeDefaults::panelStyle();
             case eWidgetType::LABEL: return CThemeDefaults::labelStyle();
+            case eWidgetType::INPUT: return CThemeDefaults::inputStyle();
             case eWidgetType::BOX: return CThemeDefaults::boxStyle();
             case eWidgetType::BUTTON: return CThemeDefaults::buttonStyle();
             case eWidgetType::IMAGE: return CThemeDefaults::imageStyle();

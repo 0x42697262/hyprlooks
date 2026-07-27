@@ -32,6 +32,7 @@ namespace Hyprlooks {
 
         void               setHovered(IWidget* w);
         void               clearHovered();
+        void               setInputFocus(IWidget* w);
 
         CHyprlandEventBus* m_eventBus = nullptr;
         CHyprlandInput*    m_input    = nullptr;

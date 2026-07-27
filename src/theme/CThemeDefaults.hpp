@@ -12,6 +12,7 @@ namespace Hyprlooks {
         static SWidgetStyle containerStyle();
         static SWidgetStyle panelStyle();
         static SWidgetStyle labelStyle();
+        static SWidgetStyle inputStyle();
         static SWidgetStyle boxStyle();
         static SWidgetStyle buttonStyle();
         static SWidgetStyle buttonHoverStyle();

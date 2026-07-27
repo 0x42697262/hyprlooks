@@ -14,6 +14,7 @@ namespace Hyprlooks {
 
         int  store(lua_State* L, int idx);
         void call(int ref);
+        void call(int ref, const std::string& arg);
         void release(int ref);
         void releaseAll();
 

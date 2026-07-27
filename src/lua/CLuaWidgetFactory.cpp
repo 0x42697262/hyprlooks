@@ -4,6 +4,7 @@
 #include "../widgets/CContainer.hpp"
 #include "../widgets/CPanel.hpp"
 #include "../widgets/CScroll.hpp"
+#include "../widgets/CInput.hpp"
 #include "../widgets/CLabel.hpp"
 #include "../widgets/CBox.hpp"
 #include "../widgets/CButton.hpp"
@@ -22,6 +23,7 @@ namespace Hyprlooks {
         widgetRegistry()->registerType("container", [] { return makeUnique<CContainer>(); });
         widgetRegistry()->registerType("panel", [] { return makeUnique<CPanel>(); });
         widgetRegistry()->registerType("scroll", [] { return makeUnique<CScroll>(); });
+        widgetRegistry()->registerType("input", [] { return makeUnique<CInput>(); });
         widgetRegistry()->registerType("label", [] { return makeUnique<CLabel>(); });
         widgetRegistry()->registerType("box", [] { return makeUnique<CBox>(); });
         widgetRegistry()->registerType("button", [] { return makeUnique<CButton>(); });

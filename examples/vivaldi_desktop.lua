@@ -166,8 +166,17 @@ hl.plugin.hyprlooks.popup({
     },
     layout   = { direction = "column", gap = 10, align = "stretch" },
     children = {
+        -- text field: type a command, press Enter to run it (Esc unfocuses)
+        {
+            type        = "input",
+            placeholder = "Run a command…",
+            on_submit   = function(text)
+                if text ~= "" then hl.dispatch(hl.dsp.exec_cmd(text)) end
+                hl.plugin.hyprlooks.hide("launcher")
+            end,
+        },
         { type = "label", text = "Applications", style = { fg = muted, font_size = 13 } },
         -- fixed viewport height => scrolls when the app list overflows it
-        { type = "scroll", height = 380, gap = 6, children = app_buttons },
+        { type = "scroll", height = 320, gap = 6, children = app_buttons },
     },
 })

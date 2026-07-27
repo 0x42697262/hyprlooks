@@ -9,9 +9,13 @@
 #include "../state/CPressedState.hpp"
 #include "../widgets/CButton.hpp"
 #include "../widgets/CScroll.hpp"
+#include "../widgets/CInput.hpp"
 #include "../platform/CHyprlandRenderer.hpp"
+#include "../platform/CKeyboardTranslator.hpp"
 
 #include <src/Compositor.hpp>
+
+#include <xkbcommon/xkbcommon-keysyms.h>
 
 namespace Hyprlooks {
 
@@ -84,6 +88,24 @@ namespace Hyprlooks {
         m_hoveredWidget.reset();
     }
 
+    void CWidgetInputManager::setInputFocus(IWidget* w) {
+        auto* previous = m_focusManager.focused().get();
+        if (previous == w)
+            return;
+
+        if (previous && previous->type() == eWidgetType::INPUT)
+            static_cast<CInput*>(previous)->setEditing(false);
+
+        if (w && w->type() == eWidgetType::INPUT) {
+            m_focusManager.setFocused(w->self());
+            static_cast<CInput*>(w)->setEditing(true);
+        } else
+            m_focusManager.clearFocus();
+
+        static CHyprlandRenderer renderer;
+        renderer.scheduleAllFrames();
+    }
+
     void CWidgetInputManager::onMouseMove(const Hyprutils::Math::Vector2D& pos, Event::SCallbackInfo& info) {
         if (!m_safety || !m_safety->canProcessInput() || !m_input)
             return;
@@ -132,6 +154,8 @@ namespace Hyprlooks {
 
                 if (pressed == hit) {
                     hit->setState(makeUnique<CHoverState>());
+                    // clicking an input focuses it; clicking anything else clears focus
+                    setInputFocus(hit);
                     if (hit->type() == eWidgetType::BUTTON) {
                         auto* btn = static_cast<CButton*>(hit);
                         m_commandQueue.enqueue(makeUnique<CClickCommand>(hit->self(), e.button, cursorPos, [btn]() { btn->fireClick(); }));
@@ -179,8 +203,36 @@ namespace Hyprlooks {
             return;
 
         CCrashIsolation::guard("input.onKeyboardKey", [&]() {
-            if (m_focusManager.hasFocus())
-                info.cancelled = true;
+            const bool pressed = e.state == WL_KEYBOARD_KEY_STATE_PRESSED;
+
+            // always feed the translator so modifier state (shift, caps) stays correct
+            keyboardTranslator()->updateKey(e.keycode, pressed);
+
+            auto* focused = m_focusManager.focused().get();
+            if (!focused || focused->type() != eWidgetType::INPUT)
+                return; // nothing is capturing text; let the key through
+
+            info.cancelled = true; // swallow keys while a field is focused
+            if (!pressed)
+                return;
+
+            auto*          input = static_cast<CInput*>(focused);
+            const uint32_t sym   = keyboardTranslator()->keysym(e.keycode);
+
+            if (sym == XKB_KEY_Escape) {
+                setInputFocus(nullptr);
+            } else if (sym == XKB_KEY_BackSpace) {
+                input->backspace();
+            } else if (sym == XKB_KEY_Return || sym == XKB_KEY_KP_Enter) {
+                input->submit();
+            } else {
+                const std::string utf8 = keyboardTranslator()->utf8(e.keycode);
+                if (!utf8.empty() && static_cast<unsigned char>(utf8[0]) >= 0x20)
+                    input->insertText(utf8);
+            }
+
+            static CHyprlandRenderer renderer;
+            renderer.scheduleAllFrames();
         });
     }
 

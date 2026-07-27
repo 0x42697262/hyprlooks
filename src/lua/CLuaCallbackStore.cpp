@@ -33,6 +33,24 @@ namespace Hyprlooks {
         }
     }
 
+    void CLuaCallbackStore::call(int id, const std::string& arg) {
+        auto it = m_callbacks.find(id);
+        if (it == m_callbacks.end())
+            return;
+
+        const auto& cb = it->second;
+        if (!cb.luaState || cb.ref == LUA_NOREF)
+            return;
+
+        lua_rawgeti(cb.luaState, LUA_REGISTRYINDEX, cb.ref);
+        lua_pushstring(cb.luaState, arg.c_str());
+        if (lua_pcall(cb.luaState, 1, 0, 0) != LUA_OK) {
+            const char* err = lua_tostring(cb.luaState, -1);
+            Log::logger->log(Log::ERR, "[hyprlooks] Lua callback error: {}", err ? err : "unknown");
+            lua_pop(cb.luaState, 1);
+        }
+    }
+
     void CLuaCallbackStore::release(int id) {
         auto it = m_callbacks.find(id);
         if (it == m_callbacks.end())

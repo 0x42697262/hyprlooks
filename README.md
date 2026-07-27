@@ -171,9 +171,23 @@ SAFE_MODE and DISABLED require manual recovery.
 - `hl.plugin.hyprlooks.status()` — get safety status string
 
 Widget types: `container`, `panel`, `scroll`, `label`, `box`, `button`,
-`image`, `clock`, `workspaces`. Containers/panels/scroll take `layout` +
-`children`; `scroll` also takes `height` (viewport) + `gap`; `image` takes
-`path` + optional `size`; `button` takes `text`/`icon` + `on_click`.
+`input`, `image`, `clock`, `workspaces`. Containers/panels/scroll take
+`layout` + `children`; `scroll` also takes `height` (viewport) + `gap`;
+`input` takes `value`/`placeholder`/`width` + `on_change`/`on_submit`; `image`
+takes `path` + optional `size`; `button` takes `text`/`icon` + `on_click`.
+
+### Text input
+
+```lua
+{ type = "input", placeholder = "Run a command…",
+  on_submit = function(text) hl.dispatch(hl.dsp.exec_cmd(text)) end }
+```
+
+Click a field to focus it (a caret appears), type, **Enter** fires `on_submit`,
+**Esc** unfocuses. While a field is focused it captures the keyboard, so
+compositor keybinds are suppressed until you press Esc or click away. Text
+follows your system default keyboard layout (`XKB_DEFAULT_LAYOUT`), not
+per-window Hyprland layout switching.
 
 ## Architecture
 

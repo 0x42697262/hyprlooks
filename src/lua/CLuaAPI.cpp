@@ -12,6 +12,7 @@
 #include "../widgets/CContainer.hpp"
 #include "../widgets/CPanel.hpp"
 #include "../widgets/CScroll.hpp"
+#include "../widgets/CInput.hpp"
 #include "../widgets/CLabel.hpp"
 #include "../widgets/CButton.hpp"
 #include "../widgets/CBox.hpp"
@@ -459,6 +460,37 @@ namespace Hyprlooks {
             lua_getfield(L, idx, "children");
             if (lua_istable(L, -1))
                 parseWidgetList(L, -1, scroll);
+            lua_pop(L, 1);
+        } else if (type == "input") {
+            auto* input = static_cast<CInput*>(widget.get());
+
+            lua_getfield(L, idx, "value");
+            if (lua_isstring(L, -1))
+                input->setValue(lua_tostring(L, -1));
+            lua_pop(L, 1);
+
+            lua_getfield(L, idx, "placeholder");
+            if (lua_isstring(L, -1))
+                input->setPlaceholder(lua_tostring(L, -1));
+            lua_pop(L, 1);
+
+            lua_getfield(L, idx, "width");
+            if (lua_isnumber(L, -1))
+                input->setInputWidth(sc<float>(lua_tonumber(L, -1)));
+            lua_pop(L, 1);
+
+            lua_getfield(L, idx, "on_change");
+            if (lua_isfunction(L, -1)) {
+                int cbId = callbackStore()->store(L, -1);
+                input->onChange([cbId](const std::string& text) { callbackStore()->call(cbId, text); });
+            }
+            lua_pop(L, 1);
+
+            lua_getfield(L, idx, "on_submit");
+            if (lua_isfunction(L, -1)) {
+                int cbId = callbackStore()->store(L, -1);
+                input->onSubmit([cbId](const std::string& text) { callbackStore()->call(cbId, text); });
+            }
             lua_pop(L, 1);
         } else if (type == "image") {
             auto* img = static_cast<CImage*>(widget.get());

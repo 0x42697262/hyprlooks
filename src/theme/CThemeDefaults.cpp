@@ -65,6 +65,17 @@ namespace Hyprlooks {
         return s;
     }
 
+    SWidgetStyle CThemeDefaults::inputStyle() {
+        SWidgetStyle s;
+        s.bgColor      = surfaceColor();
+        s.fgColor      = textColor();
+        s.hoverBgColor = CHyprColor{0.16F, 0.16F, 0.22F, 1.F};
+        s.borderRadius = {8.F, 8.F, 8.F, 8.F};
+        s.padding      = {10.F, 6.F};
+        s.fontSize     = 14.F;
+        return s;
+    }
+
     SWidgetStyle CThemeDefaults::boxStyle() {
         SWidgetStyle s;
         s.bgColor      = surfaceColor();
